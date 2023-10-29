@@ -2,7 +2,7 @@ const express = require("express");
 const { userModel } = require("../user.model");
 const userRouter = express.Router();
 const bcrypt = require("bcrypt");
-const jwt=require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 
 userRouter.post("/register", async (req, res) => {
   const { username, email, pass } = req.body;
@@ -16,7 +16,7 @@ userRouter.post("/register", async (req, res) => {
         await user.save();
         res
           .status(200)
-          .send({ msg: "A new user has been updated now", msg: req.body });
+          .send({ msg: "A new user has been updated now", user: user });
       }
     });
   } catch (error) {
@@ -28,21 +28,22 @@ userRouter.post("/login", async (req, res) => {
   const { email, pass } = req.body;
   try {
     const user = await userModel.findOne({ email });
-    bcrypt.compare(pass, user.pass,(err, result)=> {
-        // result == true
-        if (result) {
-            const token = jwt.sign({username:user.username,userID:user._id }, "masai")
-            res.status(200).send({"msg":"Login Sucessfull !","token":token})
-        } else {
-            res.status(200).send({"err":err.message})
-        }
+    bcrypt.compare(pass, user.pass, (err, result) => {
+      // result == true
+      if (result) {
+        const token = jwt.sign(
+          { username: user.username, userID: user._id },
+          "masai"
+        );
+        res.status(200).send({ msg: "Login Sucessfull !", token: token });
+      } else {
+        res.status(200).send({ err: err.message });
+      }
     });
   } catch (error) {
-    res.status(400).send({"error":error.message})
+    res.status(400).send({ error: error.message });
   }
 });
-
-
 
 module.exports = {
   userRouter,
